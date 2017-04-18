@@ -1,0 +1,82 @@
+
+html
+    head
+        title Realtime Chat using Node.js and Socket.IO
+        meta(name='viewport', content="initial-scale=1")
+        link(rel='stylesheet', href='/css/main.css')
+        link(rel='stylesheet', href='/css/style.css')
+    body
+        div.box.box--container
+            div.box.box--chat
+                ul#chat-history(style='color:red;overflow: auto;')
+                    for c in msgdata
+                        if c.name == my
+                            li.message.message--me=c.msg
+                        else
+                            li.message=c.msg
+                form#chat-form(action="")
+                    input.box(type="text", id="chat-message", autocomplete="off", placeholder="Enter message here...")
+        input#friend(type='hidden',name="friend",value=friend)
+        input#my(type='hidden',name="my",value=my)
+        input#room(type='hidden',name="my",value=room)
+        script(src="https://cdn.socket.io/socket.io-1.3.3.js")
+        script(src="https://code.jquery.com/jquery-2.1.3.min.js")
+        script.
+            var socket = io();
+            console.log(socket)
+            // get element ต่างๆ มารอไว้ก่อน
+            var chatForm = $('#chat-form');
+            var chatHistory = $("#chat-history");
+            var inputMessage = $('#chat-message');
+            var friend = $('#friend').val(); 
+            var my = $('#my').val();
+            var room =$('#room').val();
+            chatHistory[0].scrollTop = chatHistory[0].scrollHeight; 
+
+            //- socket.emit('test', {  
+            //-     room: room,
+            //-     username: my, 
+            //-     message: 'I\'m connected.'
+            //-  });
+            // เมื่อ submit form ให้ทำอะไร?
+            chatForm.submit(function() {
+                // ส่งทั้ง username และ ข้อความไปให้ server
+                if(inputMessage.val()){
+                socket.emit('test', {
+                    room: room,
+                    username: my, 
+                    message: inputMessage.val()
+                });
+
+                }
+            	// clear ค่า input
+                $(this)[0].reset();
+                return false;
+            });
+            
+
+
+            /*socket.on('connect', function() {
+            // Connected, let's sign-up for to receive messages for this room
+                socket.on('message', function(data) {
+                    console.log(data)
+                    console.log('Incoming message:', data);
+                });
+            });*/
+            //console.log(data)
+            
+            socket.on('message', function(data) {
+                if(data.username == my){
+                    chatHistory.append($('<li class="message message--me">').text(data.message));
+                }
+                else if(data.new_username == 'bot'){
+                    chatHistory.append($('<li class="message message--me">').text(data.new_message));
+                    chatHistory.append($('<li class="message">').text(data.nlp_msg));
+                }else{
+                    chatHistory.append($('<li class="message">').text(data.message));
+
+                }
+                chatHistory[0].scrollTop = chatHistory[0].scrollHeight;
+
+            });
+           

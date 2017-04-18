@@ -1,0 +1,41 @@
+html(lang="en", ng-app='GroupApp')
+	head
+		link(rel="stylesheet", href="https://ajax.googleapis.com/ajax/libs/angular_material/0.8.3/angular-material.min.css")
+		link(rel='stylesheet', href='/css/group.css')
+		link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css')
+		script(src='https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js')
+		script(src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js')
+
+	body.md-padding(layout='row', ng-controller='GroupCtrl',ng-cloak)
+			.col-md-3
+			.col-md-6
+					h2 Creategroup
+					.panel.panel-primary
+						.panel-heading Create New Group
+						.panel-body
+							form(method="post",action="/creategroup" )
+								lable create name group
+								input(type="text",name="name_group",value='')
+								div
+									h3 Friend
+									for d in data										
+											input(type="checkbox",name="friend_groups",value=d.fname)
+											|   #{d.fname}
+											br
+								
+								//- md-input-container.md-block(ng-repeat="d in Friendlist")
+								//- 	md-checkbox(name="friend_groups",ng-model="isChecked",ng-checked='toggle(d.fname,selected)' required)
+								//- 		|	{{d.fname}}
+								//- button(ng-click="showfriend()") add friend in group
+								br
+								button.btn.btn-success(type='submit') Create
+								button.btn.btn-danger(type='button', data-dismiss='modal') Cancle
+					<a class="btn btn-default" href="/fristpage" role="button">Back to Chat</a>
+			.col-md-3
+
+	script(src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.6/angular.min.js")
+	script(src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.6/angular-animate.min.js")
+	script(src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.5/angular-aria.min.js")
+	script(src="https://ajax.googleapis.com/ajax/libs/angular_material/0.8.3/angular-material.min.js")
+	script(src="https://cdn.jsdelivr.net/angular-material-icons/0.4.0/angular-material-icons.min.js")
+	script(type="text/javascript" ,src="js/angular/group.js")

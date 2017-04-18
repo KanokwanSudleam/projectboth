@@ -1,0 +1,233 @@
+html(lang="en" ,ng-app="GroupApp")
+	head
+		//- link(rel="stylesheet", href="node_modules/angular-material/angular-material.min.css")
+		link(rel="stylesheet", href="https://ajax.googleapis.com/ajax/libs/angular_material/0.8.3/angular-material.min.css")
+		link(rel='stylesheet', href='/css/angular-css.css')
+		link(rel='stylesheet', href='/css/main.css')
+		link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css')
+		script(src='https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js')
+		script(src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js')
+		
+	body(layout='row', ng-controller='GroupCtrl', ng-cloak='')
+		// preset form values if we receive a userdata object //
+		-user = typeof(udata) != 'undefined' ? udata : { }
+		
+		// store the userId on the client side in a hidden input field //
+		input(type='hidden', value= user._id)#userId
+		//-test = typeof(test) != 'undefined' ? test : { }
+
+		md-sidenav.md-sidenav-left.md-whiteframe-z2(layout='column', md-component-id='left', md-is-locked-open="$mdMedia('gt-md')")
+			md-toolbar.md-tall.md-hue-2
+				span(flex='')
+				.md-toolbar-tools-bottom.inset(layout='column')
+					user-avatar
+					span
+					div=user.name
+					div email@domainname.com
+			md-list
+				
+				md-subheader Group
+					span(flex='')
+					button.btn.btn-success#but(type='button', data-toggle='collapse', data-target='#list')
+						span.glyphicon.glyphicon-menu-down(aria-hidden='true')(style='float:right')
+					a(href="/group")
+						md-button.md-icon-button(aria-label="group_add")(style='float:right')
+							md-fab-toolbar(md-direction='right')
+								ng-md-icon(icon='group_add')
+
+					md-item#list.collapse
+						for c in group
+							md-button.md-block(style='width:100%;')
+									div(layout='row', layout-align='start center')
+										a(href="/group/#{c}")
+											md-item-content(md-ink-ripple='', layout='row', layout-align='start center')
+													.inset
+														ng-md-icon
+													.inset
+														| #{c}
+				md-divider
+				md-subheader Friend
+					md-item
+						for c in data
+							md-button.md-block(style='width:100%;')
+								div
+									a(href="/chat/#{c.fname}/#{c.room}/#{user.name}")
+										md-item-content(md-ink-ripple='', layout='row', layout-align='start center')
+											.inset
+												ng-md-icon
+											.inset
+												| #{c.fname}
+				md-divider
+				md-subheader Addfriend
+				md-item
+					form(method="post",action="/addfriend" )
+						div
+							md-input-container.md-block
+								label First name
+								input#nf(type="text",name="friend",value='')
+							div.md-block
+								input#username(type='hidden', name='username', value= user.name)
+								md-button(type="submit") Submit
+		.relative(layout='column', layout-fill='', role='main')
+			md-toolbar.md-menu-toolbar
+				.md-toolbar-tools
+					md-button(ng-click="toggleSidenav('left')", hide-gt-md='', aria-label='Menu')
+						ng-md-icon(icon='menu')
+					span(flex='')
+					md-button.md-icon-button(aria-label="member",data-toggle='modal', data-target='#memberModal')
+						md-fab-toolbar(md-direction='right')
+							ng-md-icon(icon='list')
+					md-button.md-icon-button(aria-label="add",data-toggle='modal', data-target='#addModal')
+						md-fab-toolbar(md-direction='right')
+							ng-md-icon(icon='person_add')
+					md-button.md-icon-button(aria-label="leave",data-toggle='modal', data-target='#leaveModal')
+						md-fab-toolbar(md-direction='right')
+							ng-md-icon(icon='logout')
+			md-content(flex='',md-scroll-y='',style='overflow-y: hidden;')
+				ul#chat-history(style='height: 439px;overflow: auto;')
+					for c in history
+						if c.name == profile.my
+							li.message.message--me=c.msg
+						else
+							li.message=c.msg
+			form#chat-form(action="")
+				input.box(type="text", id="chat-message", autocomplete="off", placeholder="Enter message here...")
+			input#my(type='hidden',name="my",value=profile.my)
+			input#group(type='hidden',name="group",value=profile.group)
+			#memberModal.modal.fade(role='dialog')
+				.modal-dialog.modal-sm
+					.modal-content
+						.modal-header
+							button.close(type='button', data-dismiss='modal') &times;
+							|           
+							h4.modal-title Member
+						|         
+						.modal-body
+							for c in member
+								p #{c}
+						|         
+						.modal-footer
+							button.btn.btn-default(type='button', data-dismiss='modal') Close
+			#addModal.modal.fade(role='dialog')
+				.modal-dialog.modal-sm
+					.modal-content
+						.modal-header
+							button.close(type='button', data-dismiss='modal') &times;
+							|           
+							h4.modal-title Add Friend
+						form(method="post",action="/addgroup" )         
+							.modal-body
+								input(type="text",name="friend",value='')
+								input(type='hidden',name="name_group",value=profile.group)
+							|         
+							.modal-footer
+								button.btn.btn-default(type='submit') Yes
+								button.btn.btn-default(type='button', data-dismiss='modal') No
+			#leaveModal.modal.fade(role='dialog')
+				.modal-dialog.modal-sm
+					.modal-content
+						.modal-header
+							button.close(type='button', data-dismiss='modal') &times;
+							|           
+							h4.modal-title Leave Group
+						form(method="post",action="/leavegroup")       
+							.modal-body
+								p Are you sure???
+								input(type='hidden',name="group",value=profile.group)
+								input(type='hidden',name="name",value=profile.my)
+							|         
+							.modal-footer
+								button.btn.btn-default(type='submit') Yes
+								button.btn.btn-default(type='button', data-dismiss='modal') No
+			//- div(flex='')
+			footer(layout='row')
+				p footer footer
+
+		script(src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.6/angular.min.js")
+		script(src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.6/angular-animate.min.js")
+		script(src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.5/angular-aria.min.js")
+		script(src="https://ajax.googleapis.com/ajax/libs/angular_material/0.8.3/angular-material.min.js")
+		//- script(src="https://cdn.jsdelivr.net/angular-material-icons/0.4.0/angular-material-icons.min.js")
+		script(src='https://cdnjs.cloudflare.com/ajax/libs/angular-material-icons/0.7.1/angular-material-icons.min.js')
+		script(type="text/javascript" ,src="/js/angular/grouppage.js")
+		script(src="https://cdn.socket.io/socket.io-1.3.3.js")
+		script(src="https://code.jquery.com/jquery-2.1.3.min.js")
+		script.
+			var socket = io();
+			// get element ต่างๆ มารอไว้ก่อน
+			var chatForm = $('#chat-form');
+			var chatHistory = $("#chat-history");
+			var inputMessage = $('#chat-message');
+			var my = $('#my').val();
+			var group =$('#group').val();
+
+			chatHistory[0].scrollTop = chatHistory[0].scrollHeight; 
+
+			chatForm.submit(function() {
+			// ส่งทั้ง username และ ข้อความไปให้ server
+				if(inputMessage.val()){
+					socket.emit('group', {
+						group: group,
+						username: my, 
+						message: inputMessage.val()
+				});
+
+				}
+			// clear ค่า input
+				$(this)[0].reset();
+				return false;
+			});
+
+			socket.on('what',function(data){
+				if(data.username == 'username' ){
+				chatHistory.append($('<li class="message">').text(data.username + ': ' + data.message));
+				}else{
+				chatHistory.append($('<li class="message">').text(data.username + ': ' + data.message));
+
+				}
+				chatHistory[0].scrollTop = chatHistory[0].scrollHeight;
+			})
+			// เมื่อได้รับข้อมูลจาก server ให้ทำอะไร?
+			socket.on('chat', function(data) {
+				if(data.username == my ){
+				chatHistory.append($('<li class="message message--me">').text(data.message));
+				//- if(data.message === 'test'){
+				//- chatHistory.append($('<li class="message">').text(data.username + ': ' + 'on my bot'));
+				//- }
+				//- if(data.message == 'bot'){
+				//- chatHistory.append($('<li class="message">').text(data.username + ': ' + 'bang bang'));
+				//- }
+				}if(data.new_username == 'bot'){
+				chatHistory.append($('<li class="message">').text('class' + ': ' + data.nlp_msg));
+
+				}
+				chatHistory[0].scrollTop = chatHistory[0].scrollHeight;
+				console.log(chatHistory[0].scrollHeight)
+			});
+
+			socket.on('message', function(data) {
+				if(data.username == my){
+					chatHistory.append($('<li class="message message--me">').text(data.message));
+				}
+				else if(data.new_username == 'bot'){
+					chatHistory.append($('<li class="message message--me">').text(data.new_message));
+					chatHistory.append($('<li class="message">').text(data.nlp_msg));
+				}else{
+					chatHistory.append($('<li class="message">').text(data.message));
+
+				}
+				chatHistory[0].scrollTop = chatHistory[0].scrollHeight;
+
+			});
+
+
+			socket.on('group', function(data) {
+				if(data.username == my){
+					chatHistory.append($('<li class="message message--me">').text(data.message));
+				}else{
+					chatHistory.append($('<li class="message">').text(data.message));
+
+				}
+				chatHistory[0].scrollTop = chatHistory[0].scrollHeight;
+
+			});

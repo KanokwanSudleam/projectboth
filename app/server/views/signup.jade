@@ -1,0 +1,116 @@
+
+extends layout
+
+block content
+
+	include account
+	include modals/alert 
+
+
+block scripts
+	script(src='/vendor/jquery-2.2.3.min.js')
+	script(src='/vendor/jquery.form.min.js')
+	script(src='/vendor/bootstrap.min.js')
+	script(src='/js/views/signup.js')
+	script(src='/js/controllers/signupController.js')
+	script(src='/js/form-validators/accountValidator.js')
+	//- script(src='https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js')
+	script.
+		console.log('test')
+		//- $('#faculty').on('change', function (e) {
+		//- 	var number= this.value;
+		//- 		//- console.log(data.val)
+
+		//- 		//- for(i=0;i<data.length;i++){
+		//- 		//- console.log(data)
+		//- 		//- }
+		//- 		//- $("#major").html("option(selected=data[] == user.main)= c.main")
+
+		//- 		$.get("/facultydata", function(data, status){
+		//- 					console.log(number)
+		//- 					console.log("Data:"+data);
+		//- 					console.log(data.faculty[number].major)
+		//- 					$("#major").find('option')
+		//- 								.remove()
+		//- 								.end()
+		//- 					$("#submajor").find('option')
+		//- 								.remove()
+		//- 								.end()
+		//- 					for(i=0;i<data.faculty[number].major.length;i++){
+		//- 					console.log(data.faculty[number].major[i].main)
+
+		//- 					 $("#major").append("<option value="+i+">"+data.faculty[number].major[i].main+"</option>")
+
+		//- 					}
+		//- 					//- $("#major").html("option(selected=data[] == user.main)= c.main")
+
+		//- 			});
+		//- $('#major').on('change', function (e) {
+
+		//- 		var major_number = this.value;
+		//- 		console.log("major",major_number)
+
+				
+		//- 		$.get("/facultyda", function(data, status){
+		//- 		console.log("data",data.faculty[number].major[major_number].sub.length)
+
+		//- 					$("#submajor").find('option')
+		//- 								.remove()
+		//- 								.end()
+		//- 					 for(j=0;j<data.faculty[number].major[major_number].sub.length;j++){
+		//- 					 	$("#submajor").append("<option selected="+data.faculty[number].major[major_number].sub[j]+">"+data.faculty[number].major[major_number].sub[j]+"</option>")
+		//- 					 }
+
+		//- 			});
+
+		//- 	})
+
+		//- 	})
+		$(document).on( "change", '.faculty',function(e) {
+		var value_faculty =  this.value;
+		$.post("/choosefaculty",
+		{
+			faculty: value_faculty
+		},
+		function(data, status){
+
+			$(".department").find('option')
+						.remove()
+						.end()
+			//- $(".major").find('option')
+			//- .remove()
+			//- .end()
+			$(".department").append("<option>plese choosedepartment</option>");
+			for(var i=0;i<data.length;i++){
+			$(".department").append("<option value="+"\""+value_faculty+","+data[i]+"\""+">"+data[i]+"</option>");
+			//- var txt2 = $("<p></p>").text(data[i]);
+			//- $("body").append(txt2);
+			}
+			});
+		
+		});
+		$(document).on( "change", '.department',function(e) {
+		var value_depart =  this.value;
+		var res = value_depart.split(",");
+		$(".major").find('option')
+			.remove()
+			.end()
+
+		$.post("/choosedepartment",
+		{
+			faculty: res[0],
+			department: res[1]
+		},
+		function(data, status){
+			
+			for(var i=0;i<data.length;i++){
+			$(".major").append("<option value="+"\""+data[i]._id+"\""+">"+data[i].major+"</option>");
+			//- var txt2 = $("<p></p>").text(data[i]);
+			//- $("body").append(txt2);
+			}
+			});
+		
+		});
+
+
+

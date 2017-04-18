@@ -1,0 +1,18 @@
+html
+    head
+        title Realtime Chat using Node.js and Socket.IO
+        meta(name='viewport', content="initial-scale=1")
+        link(rel='stylesheet', href='css/main.css')
+        link(rel='stylesheet', href='css/style.css')
+    body
+        // preset form values if we receive a userdata object //
+        - user = typeof(udata) != 'undefined' ? udata : { }
+        // store the userId on the client side in a hidden input field //
+        input(type='hidden', value= user._id)#userId
+
+        input(type='text', name='name', value= user.name)
+        div(style="text-align:center;margin-top: 80px")
+            //- for c in test
+            //-     p= c.fname
+            //-     input#chat(type="submit",name="chat",value="chat")
+        p hihihihihihiiih

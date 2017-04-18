@@ -1,0 +1,10 @@
+from(method="post",action="/addfriend" )
+	input#friend(type="text",name="friend")
+	input#add(type="submit",name="addfriend",value="Add")
+div#from-chat(style= "display: none;")
+	from(method="post",action="/chat" style="text-align: center")
+		input#chat(type="submit",name="chat",value="chat")
+script.
+	$('#add').click(function(){
+		$('#from-chat').show();
+	})

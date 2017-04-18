@@ -1,0 +1,159 @@
+extends layout
+
+block content
+
+	//- nav.navbar.navbar-default.navbar-fixed-top
+	//- 	.container
+	//- 		.navbar-header
+	//- 			.navbar-brand Anncoucement
+	//- 		ul.nav.navbar-nav.navbar-right
+	//- 			li
+	//- 				.navbar-btn#btn-logout.btn.btn-default
+	//- 					| Sign Out
+			// preset form values if we receive a userdata object //
+	-user = typeof(udata) != 'undefined' ? udata : { }
+	
+	// store the userId on the client side in a hidden input field //
+	input(type='hidden', value= user._id)#userId
+	//-test = typeof(test) != 'undefined' ? test : { }
+
+	div
+		p=user.name
+	.container
+		.col-md-2
+		.col-md-8
+			.panel.panel-default
+				.panel-heading Anncoucement   
+				.panel-body
+					div(style="margin-left: 15px;margin-right: 15px;")
+						//- (method='post', action='/web/webinfor/save')
+						form#webinfor.form-horizontal
+							.form-group
+								label.control-label.col-md-2.col-sm-2(for="text") Message
+								.col-md-10.col-sm-10
+									textarea.form-control#text(name='text', placeholder='ตัวอักษรห้ามเกิน 150 ตัวอักษร')
+							.form-group
+								label.control-label.col-md-2.col-sm-2(for="Date") Date
+								.col-sm-10.col-md-10
+									input.form-control#date(name='announce1', type='date', placeholder='วันโปรโมท')
+							.form-group
+								label.control-label.col-sm-2.col-md-2(for="Factory") Target
+								.col-md-10.col-sm-10
+									select.form-control.js-example-basic-multiple.js-example-responsive(name='factory1',multiple="multiple",style='width:100%')
+										option(value='คณะทั้งหมด') คณะทั้งหมด
+										option(value="คณะวิศวกรรมศาสตร์") คณะวิศวกรรมศาสตร์
+										option(value="คณะวิทยาศาสตร์") คณะวิทยาศาสตร์
+										option(value="คณะสถาปัตกรรมศาสตร์") คณะสถาปัตกรรมศาสตร์
+										option(value="คณะเกษตรศาสตร์") คณะเกษตรศาสตร์
+							.form-group
+								label.control-label.col-md-2.col-sm-2 Category
+								.col-md-10.col-sm-10
+									select.form-control#category(name='category')
+										option(value='EVENT') EVNET
+										option(value='INFORMAION') INFORMAION
+										option(value='STUDYCLASS') STUDY CLASS
+
+							.form-group
+								label.control-label.col-md-2.col-sm-2 faculty
+								.col-md-10.col-sm-10
+									select.form-control.faculty(name='fa')
+										for c in data
+											option(value=c)=c
+							.form-group
+								label.control-label.col-md-2.col-sm-2 department
+								.col-md-10.col-sm-10
+									select.form-control.department(name='department')
+										option plese choose Department
+							.form-group
+								label.control-label.col-md-2.col-sm-2 Major
+								.col-md-10.col-sm-10
+									select.form-control.js-example-basic-multiple.js-example-responsive.form-control.major(name='major',multiple="multiple",style='width:100%')
+										option plese choose Major
+							.text-center
+								button.btn.btn-primary(type="submit",name="save") Save
+								button.btn.btn-danger(type='button', data-dismiss='modal') Cancle
+
+
+		.col-md-2
+		
+		
+block scripts
+	script(src='/vendor/jquery-2.2.3.min.js')
+	script(src='/vendor/jquery.form.min.js')
+	script(src='/vendor/bootstrap.min.js')
+	script(src='/js/views/home.js')
+	script(src='/js/controllers/homeController.js')
+	script(src='/js/form-validators/accountValidator.js')
+	script(src='https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js')
+	script(src="https://cdn.socket.io/socket.io-1.3.3.js")
+	script.
+		//- var text = $('#text').submit(){
+		var socket = io();
+		//- }
+		$(".js-example-basic-multiple").select2({
+		placeholder: "plese choose Major"
+		});
+		$(document).on( "change", '.faculty',function(e) {
+		var value_faculty =  this.value;
+		$.post("/choosefaculty",
+		{
+			faculty: value_faculty
+		},
+		function(data, status){
+
+			$(".department").find('option')
+						.remove()
+						.end()
+			//- $(".major").find('option')
+			//- .remove()
+			//- .end()
+			$(".department").append("<option>plese choosedepartment</option>");
+			for(var i=0;i<data.length;i++){
+			$(".department").append("<option value="+"\""+value_faculty+","+data[i]+"\""+">"+data[i]+"</option>");
+			//- var txt2 = $("<p></p>").text(data[i]);
+			//- $("body").append(txt2);
+			}
+			});
+		
+		});
+		$(document).on( "change", '.department',function(e) {
+		var value_depart =  this.value;
+		var res = value_depart.split(",");
+		//- $(".major").find('option')
+		//- 	.remove()
+		//- 	.end()
+
+		$.post("/choosedepartment",
+		{
+			faculty: res[0],
+			department: res[1]
+		},
+		function(data, status){
+			
+			for(var i=0;i<data.length;i++){
+			$(".major").append("<option value="+"\""+data[i]._id+"\""+">"+data[i].major+"</option>");
+			//- var txt2 = $("<p></p>").text(data[i]);
+			//- $("body").append(txt2);
+			}
+			});
+		
+		});
+		var text = $('#text');
+		var date = $('#date');
+		var category = $('#category').val();
+		var id_major = $('.major');
+
+
+		$( "#webinfor" ).submit(function( event ) {
+			if(id_major.val()){
+			alert(id_major.val())
+			socket.emit('webinfor_chat', {
+						text: text.val(),
+						date: date.val(), 
+						category: category,
+						id_major:id_major.val()
+				});
+			}
+				$(this)[0].reset();
+				return false;
+		});

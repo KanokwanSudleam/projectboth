@@ -1,0 +1,127 @@
+html
+	head
+		title Node.js Login
+		link(rel='stylesheet', href='/vendor/bootstrap.min.css')
+		link(rel='stylesheet', href='/css/style.css')
+		link(rel='stylesheet', href='//cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.1.1/gh-fork-ribbon.min.css')
+
+	body
+		// preset form values if we receive a userdata object //
+		-user = typeof(udata) != 'undefined' ? udata : { }
+		
+		// store the userId on the client side in a hidden input field //
+		input(type='hidden', value= user._id)#userId
+		//-test = typeof(test) != 'undefined' ? test : { }
+
+
+		nav.navbar.navbar-default.navbar-fixed-top
+			.container
+				.navbar-header
+					.navbar-brand Control Panel
+				ul.nav.navbar-nav.navbar-right
+					li.navbar-brand=user.name
+					li
+						.navbar-btn#btn-logout.btn.btn-default
+							| Sign Out
+
+		div(style="text-align:center;margin-top: 80px")
+			form(method="post",action="/addfriend" )
+				input#nf(type="text",name="friend",value='')
+				input#username(type='hidden', name='username', value= user.name)
+				input#add(type="submit",name="addfriend",value="Add")
+		div#from-chat(style= "display: none;")
+			form(method="post",action="/web" style="text-align: center")
+				input#chat(type="submit",name="chat",value="chat")
+		div 
+			p(style="text-align: center;margin: 8px;")
+				a(href="./chat") chatbot
+		div
+			for c in data
+				div 
+					p(style="text-align: center;margin: 8px;")
+						a(href="/chat/#{c.fname}/#{c.room}/#{user.name}") #{c.fname}
+		div
+			for c in data
+				form(method="post",action="/webchat" )
+					p(style="text-align:center;margin-top: 10px")= c.fname
+						input#namefriend(type='hidden',name="fname",value= c.fname)
+						input#room(type='hidden',name="room",value= c.room)
+						input#myname(type='hidden', name='myname', value= user.name)
+						input#test(type="submit",name="chat",value="chat" style="margin-left: 50px")
+			//- 			button#test(style="margin-left: 50px") chat
+
+
+		script(src="https://cdn.socket.io/socket.io-1.3.3.js")
+		script(src='/vendor/jquery-2.2.3.min.js')
+		script(src='/vendor/jquery.form.min.js')
+		script(src='/vendor/bootstrap.min.js')
+		script(src='/js/views/home.js')
+		script(src='/js/controllers/homeController.js')
+		script(src='/js/form-validators/accountValidator.js')
+		script.
+
+			$('#add').click(function(){
+				$('#from-chat').show();
+			})
+			var namefriend = $('#nf').val();
+			$('#chat').click(function(){
+				//that.sendname(namefriend);
+				var namefriend1 = $('#nf').val();
+				//console.log(namefriend)
+				var socket = io();
+				
+				socket.on('connect',function(){
+
+					socket.emit('room', { 
+						message: namefriend1
+					});
+				})
+			})
+			//- $('#test').click(function(){
+
+			//- 	var namefriend = $('#namefriend').val();
+			//- 	var username= $('#username').val();
+			//- 	var room=$('#room').val();
+			//- 	var socket = io();
+				
+			//- 	socket.on('connect',function(){
+
+			//- 		socket.emit('room', {
+			//- 			room: room ,
+			//- 			namefriend: namefriend,
+			//- 			username: username
+			//- 		});
+			//- 	})
+			//- })
+
+
+
+//- extends layout
+
+//- block content
+
+//- 	nav.navbar.navbar-default.navbar-fixed-top
+//- 		.container
+//- 			.navbar-header
+//- 				.navbar-brand Control Panel
+//- 			ul.nav.navbar-nav.navbar-right
+//- 				li
+//- 					.navbar-btn#btn-logout.btn.btn-default
+//- 						| Sign Out
+//- 	div(style="text-align:center;margin-top: 80px")
+//- 		from(method="post",action="/addfriend" )
+//- 			input#friend(type="text",name="friend",value='')
+//- 			input#add(type="submit",name="addfriend",value="Add")
+//- 	div#from-chat(style= "display: none;")
+//- 		from(method="post",action="/chat" style="text-align: center")
+//- 			input#chat(type="submit",name="chat",value="chat")
+
+
+//- block scripts
+//- 	script(src='/vendor/jquery-2.2.3.min.js')
+//- 	script(src='/vendor/jquery.form.min.js')
+//- 	script(src='/vendor/bootstrap.min.js')
+//- 	//- script.
+//- 	//- 	$('#add').click(function(){
+//- 	//- 		$('#from-chat').show();
+//- 	//- 	})

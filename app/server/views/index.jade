@@ -1,0 +1,88 @@
+doctype html
+html
+    head
+        title Realtime Chat using Node.js and Socket.IO
+        meta(name='viewport', content="initial-scale=1")
+        link(rel='stylesheet', href='css/main.css')
+    body
+        div.box.box--container
+            div.box.box--chat
+                ul#chat-history
+                form#chat-form(action="")
+                    input.box(type="text", id="chat-message", autocomplete="off", placeholder="Enter message here...")
+        script(src="https://cdn.socket.io/socket.io-1.3.3.js")
+        script(src="https://code.jquery.com/jquery-2.1.3.min.js")
+        script.
+            // เอา Socket.IO มาใช้งาน
+            var socket = io();
+
+            // get element ต่างๆ มารอไว้ก่อน
+            var chatForm = $('#chat-form');
+            var chatHistory = $("#chat-history");
+            var inputMessage = $('#chat-message');
+
+            // set ให้ focus ที่ input ตั้งแต่เริ่ม
+            inputMessage.focus();
+            //var name1='AA';
+            //var name2='BB';
+            //- socket.emit(name1+name2,{
+            //- name1:name1,
+            //- name2:name2 
+            //- });
+            // สร้าง username โดยการสุ่มแบบง่ายๆ
+            var username = Math.floor((Math.random() * 100) + 1);
+
+            // เมื่อเชื่อมต่อสำเร็จ ให้ส่งข้อความไปบอก server
+            //- socket.emit('wtf', {
+            //-     username: username,
+            //-     room: 'bot', 
+            //-     message: 'I\'m connected.'
+            //- });
+
+            // เมื่อ submit form ให้ทำอะไร?
+            chatForm.submit(function() {
+                // ส่งทั้ง username และ ข้อความไปให้ server
+                if(inputMessage.val()){
+                socket.emit('wtf', {
+                    username: username, 
+                    message: inputMessage.val()
+                });
+
+                }
+            	// clear ค่า input
+                $(this)[0].reset();
+                return false;
+            });
+            socket.on('what',function(data){
+                        console.log('data')
+            
+
+                if(data.username == 'username' ){
+                    chatHistory.append($('<li class="message">').text(data.username + ': ' + data.message));
+                }else{
+                    chatHistory.append($('<li class="message">').text(data.username + ': ' + data.message));
+
+                }
+            chatHistory[0].scrollTop = chatHistory[0].scrollHeight;
+            })
+            
+            // เมื่อได้รับข้อมูลจาก server ให้ทำอะไร?
+            socket.on('chat', function(data) {
+                if(data.username == username ){
+                   chatHistory.append($('<li class="message message--me">').text(data.message));
+                   //- if(data.message === 'test'){
+                   //- chatHistory.append($('<li class="message">').text(data.username + ': ' + 'on my bot'));
+                   //- }
+                   //- if(data.message == 'bot'){
+                   //- chatHistory.append($('<li class="message">').text(data.username + ': ' + 'bang bang'));
+                   //- }
+
+                }if(data.new_username == 'bot'){
+                    chatHistory.append($('<li class="message">').text('class' + ': ' + data.nlp_msg));
+
+                }
+           
+
+                chatHistory[0].scrollTop = chatHistory[0].scrollHeight;
+                 console.log(chatHistory[0])
+            });

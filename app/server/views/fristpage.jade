@@ -1,0 +1,214 @@
+html(lang="en" ,ng-app="StarterApp")
+	head
+		//- link(rel="stylesheet", href="node_modules/angular-material/angular-material.min.css")
+		link(rel="stylesheet", href="https://ajax.googleapis.com/ajax/libs/angular_material/0.8.3/angular-material.min.css")
+		link(rel='stylesheet', href='/css/angular-css.css')
+		link(rel='stylesheet', href='/css/main.css')
+		link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css')
+		script(src="https://code.jquery.com/jquery-2.1.3.min.js")
+		script(src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js')
+		script(src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.js')
+
+		//- script(type='text/javascript', src='https://code.jquery.com/jquery-1.11.3.min.js')
+	//- script(type='text/javascript', src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js')
+	body(layout='row', ng-controller='AppCtrl')
+		// preset form values if we receive a userdata object //
+		-user = typeof(udata) != 'undefined' ? udata : { }
+		
+		// store the userId on the client side in a hidden input field //
+		input(type='hidden', value= user._id)#userId
+		//-test = typeof(test) != 'undefined' ? test : { }
+
+		md-sidenav.md-sidenav-left.md-whiteframe-z2(layout='column', md-component-id='left', md-is-locked-open="$mdMedia('gt-md')")
+			md-toolbar.md-tall.md-hue-2
+				span(flex='')
+				.md-toolbar-tools-bottom.inset(layout='column')
+					user-avatar
+					span
+					div=user.name
+					div email@domainname.com
+			md-list
+				md-subheader Group
+					span(flex='')
+					a(href="/group")
+						md-button.md-icon-button(aria-label="group_add",style='float:right')
+							md-fab-toolbar(md-direction='right')
+								ng-md-icon(icon='group_add')
+					md-list-item.md-3-lines
+
+						md-item
+							for c in group
+								md-list
+									md-button.md-block(style='width:100%;')
+										div
+											a(href="/group/#{c}")
+												md-item-content(md-ink-ripple='', layout='row', layout-align='start center')
+													.inset
+														ng-md-icon
+													.inset
+														| #{c}
+				md-divider
+				md-subheader Friend
+					md-item
+						for c in data
+							md-button.md-block(style='width:100%;')
+								div
+									a(href="/chat/#{c.fname}/#{c.room}/#{user.name}")
+										md-item-content(md-ink-ripple='', layout='row', layout-align='start center')
+											.inset
+												ng-md-icon
+											.inset
+												| #{c.fname}
+				md-divider
+				md-subheader Addfriend
+				md-item
+					form(method="post",action="/addfriend" )
+						div
+							md-input-container.md-block
+								label First name
+								input#nf(type="text",name="friend",value='')
+							div.md-block
+								input#username(type='hidden', name='username', value= user.name)
+								md-button(type="submit") Submit
+		.relative(layout='column', layout-fill='', role='main')
+			md-toolbar
+				.md-toolbar-tools
+					md-button(ng-click="toggleSidenav('left')", hide-gt-md='', aria-label='Menu')
+						ng-md-icon(icon='menu')
+					a(href="/webinfor")
+						p Announcement
+			md-content(flex='',md-scroll-y='',style='overflow-y: hidden;')
+				ul#chat-history(style='height: 439px;overflow: auto;')
+					for c in history
+						if c.name == profile.my
+							li.message.message--me=c.msg
+						else
+							li.message=c.msg
+			form#chat-form(action="")
+				input.box(type="text", id="chat-message", autocomplete="off", placeholder="Enter message here...")
+			input#friend(type='hidden',name="friend",value=profile.friend)
+			input#my(type='hidden',name="my",value=profile.my)
+			input#room(type='hidden',name="my",value=profile.room)
+			//- div(flex='')
+		#addModal.modal.fade(role='dialog')
+			.modal-dialog.modal-sm
+				.modal-content
+					.modal-header
+						button.close(type='button', data-dismiss='modal') &times;
+						|           
+						h4.modal-title Add calendar
+					form(method="post",action="/addcalendar")       
+						.modal-body
+							.form-group
+								input.form-control(type='hidden', name='new_id') 
+								input.form-control(type="text",name='nameactivity', placeholder='Name Activity', required='')
+								input.form-control(type="datetime",name='start', placeholder='EX. 22/04/60 9.00', required='')
+								input.form-control(type="datetime",name='end', placeholder='EX. 22/04/60 12.00', required='')
+						|         
+						.modal-footer
+							button.btn.btn-default(type='submit') Yes
+							button.btn.btn-default(type='button', data-dismiss='modal') No
+
+
+		script(src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.6/angular.min.js")
+		script(src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.6/angular-animate.min.js")
+		script(src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.5/angular-aria.min.js")
+		script(src="https://ajax.googleapis.com/ajax/libs/angular_material/0.8.3/angular-material.min.js")
+		script(src="https://cdn.jsdelivr.net/angular-material-icons/0.4.0/angular-material-icons.min.js")
+		script(type="text/javascript" ,src="/js/angular/fristpage.js")
+		script(src="https://cdn.socket.io/socket.io-1.3.3.js")
+		
+		script.
+			var socket = io();
+			// get element ต่างๆ มารอไว้ก่อน
+			var chatForm = $('#chat-form');
+			var chatHistory = $("#chat-history");
+			var inputMessage = $('#chat-message');
+			var friend = $('#friend').val(); 
+			var my = $('#my').val();
+			var room =$('#room').val();
+			var addmodel = $('#addModal')
+			chatHistory[0].scrollTop = chatHistory[0].scrollHeight; 
+			
+			//- addmodel.modal('hide');
+		
+
+			chatForm.submit(function() {
+			// ส่งทั้ง username และ ข้อความไปให้ server
+				if(inputMessage.val()){
+					socket.emit('test', {
+						room: room,
+						username: my, 
+						message: inputMessage.val()
+				});
+
+				}
+			// clear ค่า input
+				$(this)[0].reset();
+				return false;
+			});
+			var chatbotname = "chatbot"+my
+			console.log(chatbotname)
+			socket.on('webinfor',function(data){
+				//- chatHistory.append($('<li class="message">').text('test'));
+				alert("data")
+				if(data.username == 'bot' ){
+				console.log("in condition")
+				chatHistory.append($('<li class="message">').text(data.username + ': ' + data.message));
+				}
+			//- else{
+				//- console.log("test test")
+				//- }
+			//- else{
+			//- 	chatHistory.append($('<li class="message">').text(data.username + ': ' + data.message));
+
+			//- 	}
+				chatHistory[0].scrollTop = chatHistory[0].scrollHeight;
+			})
+			// เมื่อได้รับข้อมูลจาก server ให้ทำอะไร?
+			socket.on('chat', function(data) {
+				if(data.username == my ){
+				chatHistory.append($('<li class="message message--me">').text(data.message));
+				//- if(data.message === 'test'){
+				//- chatHistory.append($('<li class="message">').text(data.username + ': ' + 'on my bot'));
+				//- }
+				//- if(data.message == 'bot'){
+				//- chatHistory.append($('<li class="message">').text(data.username + ': ' + 'bang bang'));
+				//- }
+				}if(data.new_username == 'bot'){
+					if(data.nlp_msg == "<img src="+"\""+"/img/train.jpg"+"\""+"class="+"\""+"img-responsive"+"\"" +"height="+"\""+"150"+"\""+"width="+"\""+"180"+"\""+">"){
+						chatHistory.append($('<li class="message">').html(data.nlp_msg))
+
+					}else if(data.nlp_msg == "<img src="+"\""+"/img/out.jpg"+"\""+"class="+"\""+"img-responsive"+"\"" +"height="+"\""+"150"+"\""+"width="+"\""+"180"+"\""+">"){
+					chatHistory.append($('<li class="message">').html(data.nlp_msg))
+						}
+					
+					else if(data.nlp_msg == "add event"){
+							//- alert(data.nlp_msg)
+							addmodel.modal('show');
+						}
+					else{
+
+						chatHistory.append($('<li class="message">').text(data.nlp_msg));
+					}
+						//- var img = "<img src="+"\""+"/img/train.jpg"+"\""+"class="+"\""+"img-responsive"+"\"" +">"
+						//- chatHistory.append($('<li class="message">').html(img))
+
+					}
+				chatHistory[0].scrollTop = chatHistory[0].scrollHeight;
+			});
+
+			socket.on('message', function(data) {
+				if(data.username == my){
+					chatHistory.append($('<li class="message message--me">').text(data.message));
+				}
+				else if(data.new_username == 'bot'){
+					chatHistory.append($('<li class="message message--me">').text(data.new_message));
+					chatHistory.append($('<li class="message">').text(data.nlp_msg));
+				}else{
+					chatHistory.append($('<li class="message">').text(data.message));
+
+				}
+				chatHistory[0].scrollTop = chatHistory[0].scrollHeight;
+
+			});

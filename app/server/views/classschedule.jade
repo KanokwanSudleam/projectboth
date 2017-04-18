@@ -1,0 +1,156 @@
+html
+	head
+		link(rel="stylesheet", href="https://ajax.googleapis.com/ajax/libs/angular_material/0.8.3/angular-material.min.css")
+		link(rel='stylesheet', href='/css/group.css')
+		link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css')
+		script(src='https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js')
+		script(src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js')
+	body
+		.container
+			.col-md-1
+			.col-md-10
+				.panel-group
+					.panel.panel-default
+						.panel-heading classschedule
+						.panel-body
+							div
+								p=name[0].faculty
+								span=name[0].department
+								sapn=name[0].major
+								span=name[0].year
+							hr
+							form(method='post', action='/addclass').form-horizontal
+								.form-group
+									label.control-label.col-sm-3 รหัสวิชา
+									.col-md-9.col-sm-9
+										input.form-control(name='id_subject', type='text', placeholder='รหัสวิชา')
+								.form-group
+									label.control-label.col-sm-3 ชื่อวิชา
+									.col-md-9.col-sm-9
+										input.form-control(name='subject', type='text', placeholder='ชื่อวิชา')
+								.form-group
+									label.control-label.col-sm-3 วันเวลาเรียน
+									.col-md-9.col-sm-9
+										input.form-control(name='datetime', type='text', placeholder='วันจันทร์ 9.00น.-12.00น.')
+								.form-group
+									label.control-label.col-sm-3 classroom
+									.col-md-9.col-sm-9
+										input.form-control(name='classroom', type='text', placeholder='classroom')
+								.form-group
+									label.control-label.col-sm-3 building
+									.col-md-9.col-sm-9
+										input.form-control(name='building', type='text', placeholder='ตึกเรียน')
+								.form-group
+									label.control-label.col-sm-3 อาจารย์ผู้สอน
+									.col-md-9.col-sm-9
+										input.form-control(name='teacher', type='text', placeholder='อาจารย์ผู้สอน')
+								input(type="hidden",name="faculty",value=name[0].faculty)
+								input(type="hidden",name="department",value=name[0].department)
+								input(type="hidden",name="major",value=name[0].major)
+								input(type="hidden",name="year",value=name[0].year)
+								input#idnum(type="hidden",name="id",value=name[0]._id)
+								input#newid(type="hidden",name="newid",value="")
+								.form-buttons
+										button.btn.btn-primary#add(type="submit",name="save") ADD
+										button.btn.btn-danger(type='button', data-dismiss='modal') Cancle
+					.panel.panel-default
+						.panel-heading DATA
+						.panel-body
+								div(style="margin-left: 15px;margin-right: 15px;")
+									table.table(style='width:100%')
+										tr
+											th Id_subject
+											th Subject
+											th Date
+											th Classroom
+											th Building
+											th Teacher
+											th Edit/Delete
+										for d in name
+											for c in d.data
+												tr
+													td=c.id_subject
+													td=c.subject
+													td=c.datetime
+													td=c.classroom
+													td=c.building
+													td=c.teacher
+													td
+														button.btn.btn-primary#edit(type="button",name="save",data-toggle='modal', data-target='#editclass',data-idsubject=c.id_subject,data-subject=c.subject,data-datetime=c.datetime,data-classroom=c.classroom,data-building=c.building,data-teacher=c.teacher,data-id=d._id) EDIT
+														button.btn.btn-danger#del(type='button',data-toggle='modal', data-target='#delclass',data-id=d._id) DELETE
+					#editclass.modal.fade(role='dialog')
+						.modal-dialog.modal-sm
+							.modal-content
+								.modal-header
+									button.close(type='button', data-dismiss='modal') &times;
+									|           
+									h4.modal-title Edit
+								form(method="post",action="/editclassschedule")       
+									.modal-body
+										.form-group
+											input.form-control.new_id(type='hidden', name='new_id') 
+											input.form-control.new_id_subject(name='new_id_subject', placeholder='Enter Id_subject', required='')
+											input.form-control.new_subject(name='new_subject', placeholder='Enter Subject', required='')
+											input.form-control.new_datetime(name='new_datetime', placeholder='Enter Date', required='')
+											input.form-control.new_classroom(name='new_classroom', placeholder='Enter Classroom', required='')
+											input.form-control.new_building(name='new_building', placeholder='Enter Building', required='')
+											input.form-control.new_teacher(name='new_teacher', placeholder='Enter Teacher', required='')
+											input.form-control(type='hidden', name='faculty',value=name[0].faculty)
+											input.form-control(type='hidden', name='department',value=name[0].department)
+											input.form-control(type='hidden', name='major',value=name[0].major)
+											input.form-control(type='hidden', name='year',value=name[0].year)
+									.modal-footer
+										button.btn.btn-default(type='submit') Yes
+										button.btn.btn-default(type='button', data-dismiss='modal') No
+
+					#delclass.modal.fade(role='dialog')
+						.modal-dialog.modal-sm
+							.modal-content
+								.modal-header
+									button.close(type='button', data-dismiss='modal') &times;
+									|           
+									h4.modal-title Delete
+								form(method="post",action="/delclass")       
+									.modal-body
+										p Are you sure???
+										input.form-control.del_id(type='hidden', name='del_id') 
+									|         
+									.modal-footer
+										button.btn.btn-default(type='submit') Yes
+										button.btn.btn-default(type='button', data-dismiss='modal') No
+
+			.col-md-1
+		script(src="https://code.jquery.com/jquery-2.1.3.min.js")
+		script.
+			$(document).on( "click", '#add',function(e) {
+			var id = $('#idnum').val();
+			var num_id=id.slice(1, id.length-1);
+			$("newid").val(num_id);
+			
+			});
+
+			$(document).on( "click", '#edit',function(e) {
+			var idsubject = $(this).data('idsubject');
+			var subject = $(this).data('subject');
+			var datetime = $(this).data('datetime');
+			var classroom = $(this).data('classroom');
+			var building = $(this).data('building');
+			var teacher = $(this).data('teacher');
+			var id = $(this).data('id');
+			var num_id=id.slice(1, id.length-1);
+			$(".new_id").val(num_id);
+			$(".new_id_subject").val(idsubject);
+			$(".new_subject").val(subject);
+			$(".new_datetime").val(datetime);
+			$(".new_classroom").val(classroom);
+			$(".new_building").val(building);
+			$(".new_teacher").val(teacher);
+
+			});
+
+			$(document).on( "click", '#del',function(e) {
+			var id = $(this).data('id');
+			var num_id=id.slice(1, id.length-1);
+			$(".del_id").val(num_id);
+			
+			});
